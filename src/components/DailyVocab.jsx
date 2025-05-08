@@ -55,6 +55,20 @@ function DailyVocab() {
             </h1>
             {loading ? (
                 <p>Chargement...</p>
+            ) : words.length === 0 ? (
+                <div
+                    style={{
+                        padding: "1rem",
+                        border: "1px solid #e74c3c",
+                        borderRadius: "8px",
+                        background: "#fdecea",
+                        color: "#c0392b",
+                        textAlign: "center",
+                        fontWeight: "bold"
+                    }}
+                >
+                    Aucun mot n’a pu être trouvé aujourd’hui.
+                </div>
             ) : (
                 words.map(({ word, translation, definition }, index) => (
                     <div
