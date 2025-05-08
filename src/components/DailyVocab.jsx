@@ -6,6 +6,63 @@ function DailyVocab() {
     const [words, setWords] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const parseLines = (lines) => {
+        const parsers = [
+            // Format : 1. Word → Translation : Definition
+            line => {
+                const match = line.match(/^\d+\.\s*(.+?)\s*→\s*(.+?)\s*:\s*(.+)$/);
+                return match && {
+                    word: match[1].trim(),
+                    translation: match[2].trim(),
+                    definition: match[3].trim(),
+                };
+            },
+            // Format : Word (Translation) : Definition
+            line => {
+                const match = line.match(/^(.+?)\s*\((.+?)\)\s*:\s*(.+)$/);
+                return match && {
+                    word: match[1].trim(),
+                    translation: match[2].trim(),
+                    definition: match[3].trim(),
+                };
+            },
+            // Format : Word → Translation - Definition
+            line => {
+                const match = line.match(/^(.+?)\s*→\s*(.+?)\s*-\s*(.+)$/);
+                return match && {
+                    word: match[1].trim(),
+                    translation: match[2].trim(),
+                    definition: match[3].trim(),
+                };
+            },
+            // Format : Word : Translation - Definition
+            line => {
+                const match = line.match(/^(.+?)\s*:\s*(.+?)\s*-\s*(.+)$/);
+                return match && {
+                    word: match[1].trim(),
+                    translation: match[2].trim(),
+                    definition: match[3].trim(),
+                };
+            },
+            // Format : table-like | Word | Translation | Definition
+            line => {
+                const match = line.match(/^(.+?)\s*\|\s*(.+?)\s*\|\s*(.+)$/);
+                return match && {
+                    word: match[1].trim(),
+                    translation: match[2].trim(),
+                    definition: match[3].trim(),
+                };
+            }
+        ];
+
+        for (const parser of parsers) {
+            const results = lines.map(parser).filter(Boolean);
+            if (results.length >= 3) return results; // on valide si au moins 3 mots trouvés
+        }
+
+        return [];
+    };
+
     const fetchWordData = async () => {
         setLoading(true);
         try {
@@ -16,19 +73,7 @@ function DailyVocab() {
             const lines = text.split("\n").filter((l) => l.trim().length > 0);
             console.log("🧪 Lignes analysées :", lines);
 
-            const parsed = lines
-                .map((line) => {
-                    const match = line.match(/^\d+\.\s*(.+?)\s*→\s*(.+?)\s*:\s*(.+)$/);
-                    if (match) {
-                        return {
-                            word: match[1].trim(),
-                            translation: match[2].trim(),
-                            definition: match[3].trim(),
-                        };
-                    }
-                    return null;
-                })
-                .filter(Boolean);
+            const parsed = parseLines(lines);
 
             if (parsed.length === 0) {
                 toast.error("Aucun mot n’a pu être extrait du texte.");
