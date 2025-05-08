@@ -7,7 +7,7 @@ function DailyVocab() {
     const fetchWordData = async () => {
         setLoading(true);
         try {
-            const res = await fetch("/.netlify/functions/getVocab");
+            const res = await fetch("/netlify/functions/getVocab");
             const data = await res.json();
 
             const text = data.content;
