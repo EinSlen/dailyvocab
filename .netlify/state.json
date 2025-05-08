@@ -1,0 +1,20 @@
+{
+	"geolocation": {
+		"data": {
+			"city": "Lens",
+			"country": {
+				"code": "FR",
+				"name": "France"
+			},
+			"subdivision": {
+				"code": "HDF",
+				"name": "Hauts-de-France"
+			},
+			"timezone": "Europe/Paris",
+			"latitude": 50.4274,
+			"longitude": 2.8244,
+			"postalCode": "62300"
+		},
+		"timestamp": 1746672332648
+	}
+}
