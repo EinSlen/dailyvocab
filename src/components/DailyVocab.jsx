@@ -28,6 +28,7 @@ function DailyVocab() {
                     return null;
                 })
                 .filter(Boolean);
+            console.log(parsed);
 
             setWords(parsed);
         } catch (err) {
