@@ -17,7 +17,7 @@ function DailyVocab() {
             const lines = text.split("\n").filter((l) => l.trim().length > 0);
             const parsed = lines
                 .map((line) => {
-                    const match = line.match(/^(.+?)\s*\((.+?)\)\s*:\s*(.+)$/);
+                    const match = line.match(/^\d+\.\s*(.+?):\s*(.+?)\s*-\s*(.+)$/);
                     if (match) {
                         return {
                             word: match[1].trim(),
