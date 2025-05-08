@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 function DailyVocab() {
     const [words, setWords] = useState([]);
@@ -9,12 +11,11 @@ function DailyVocab() {
         try {
             const res = await fetch("/.netlify/functions/getVocab");
             const data = await res.json();
-            console.log('data', data);
 
             const text = data.content;
-
-            // Parsing du texte généré par le LLM
             const lines = text.split("\n").filter((l) => l.trim().length > 0);
+            console.log("🧪 Lignes analysées :", lines);
+
             const parsed = lines
                 .map((line) => {
                     const match = line.match(/^\d+\.\s*(.+?)\s*→\s*(.+?)\s*:\s*(.+)$/);
@@ -28,11 +29,15 @@ function DailyVocab() {
                     return null;
                 })
                 .filter(Boolean);
-            console.log(parsed);
+
+            if (parsed.length === 0) {
+                toast.error("Aucun mot n’a pu être extrait du texte.");
+            }
 
             setWords(parsed);
         } catch (err) {
             console.error("Erreur lors de la récupération des mots :", err);
+            toast.error("Erreur lors de la récupération du vocabulaire.");
             setWords([]);
         } finally {
             setLoading(false);
@@ -72,6 +77,9 @@ function DailyVocab() {
             <button onClick={fetchWordData} style={{ marginTop: "1rem" }}>
                 🔁 Rafraîchir
             </button>
+
+            {/* Le conteneur à afficher pour les toasts */}
+            <ToastContainer position="top-center" />
         </div>
     );
 }
