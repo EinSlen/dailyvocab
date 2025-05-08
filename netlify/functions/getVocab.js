@@ -23,7 +23,7 @@ exports.handler = async function (event, context) {
                     {
                         role: "user",
                         content:
-                            "Donne-moi 5 mots anglais utiles du quotidien avec leur traduction en français et une définition simple (format structuré lisible facilement).",
+                            "Donne-moi exactement 5 mots anglais utiles du quotidien dans ce format :\n\nMot anglais → traduction française : définition simple.\nPas de numérotation, juste 5 lignes au bon format.",
                     },
                 ],
             }),
