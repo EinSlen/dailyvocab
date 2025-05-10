@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import ClipLoader from "react-spinners/ClipLoader";
 
 function DailyVocab() {
     const [words, setWords] = useState([]);
@@ -138,7 +139,9 @@ function DailyVocab() {
                 Vocabulaire du jour
             </h1>
             {loading ? (
-                <p>Chargement...</p>
+                <div style={{display: "flex", justifyContent: "center", margin: "2rem"}}>
+                    <ClipLoader color="#3498db" loading={loading} size={50}/>
+                </div>
             ) : words.length === 0 ? (
                 <div
                     style={{
