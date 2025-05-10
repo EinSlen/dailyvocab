@@ -181,7 +181,7 @@ function DailyVocab() {
                 🔁 Rafraîchir
             </button>
 
-            <div style={{marginBottom: "1rem"}}>
+            <div style={{marginBottom: "1rem", marginTop: "1rem"}}>
                 <label style={{fontWeight: "bold"}}>🧠 Modèle :</label>
                 <select value={model} onChange={handleModelChange} style={{marginLeft: "1rem"}}>
                     <option value="mistralai/mistral-7b-instruct">Mistral 7B</option>
