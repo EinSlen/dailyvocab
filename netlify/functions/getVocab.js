@@ -11,6 +11,8 @@ exports.handler = async function (event, context) {
             };
         }
 
+        const { model, prompt } = JSON.parse(event.body || "{}");
+
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -18,13 +20,11 @@ exports.handler = async function (event, context) {
                 Authorization: `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-                model: "mistralai/mistral-7b-instruct",
+                model:  model || "mistralai/mistral-7b-instruct",
                 messages: [
                     {
                         role: "user",
-                        content:
-                            "Donne-moi exactement 5 mots anglais utiles du quotidien dans ce format :\n\nMot anglais → traduction française : définition simple.\nPas de numérotation, juste 5 lignes au bon format.",
-                    },
+                        content: prompt || "Donne-moi 5 mots anglais utiles du quotidien dans ce format : Mot → traduction : définition",                    },
                 ],
             }),
         });

@@ -5,6 +5,14 @@ import 'react-toastify/dist/ReactToastify.css';
 function DailyVocab() {
     const [words, setWords] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [model, setModel] = useState("mistralai/mistral-7b-instruct");
+    const [contextPrompt, setContextPrompt] = useState(
+        "Donne-moi exactement 5 mots anglais utiles du quotidien dans ce format :\n\nMot anglais → traduction française : définition simple.\nPas de numérotation, juste 5 lignes au bon format."
+    );
+
+    const handleModelChange = (e) => setModel(e.target.value);
+    const handleContextChange = (e) => setContextPrompt(e.target.value);
+
 
     const parseLines = (lines) => {
         const parsers = [
@@ -76,7 +84,13 @@ function DailyVocab() {
     const fetchWordData = async () => {
         setLoading(true);
         try {
-            const res = await fetch("/.netlify/functions/getVocab");
+            const res = await fetch("/.netlify/functions/getVocab", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ model, prompt: contextPrompt }),
+            });
             const data = await res.json();
 
             const text = data.content;
@@ -104,8 +118,8 @@ function DailyVocab() {
     }, []);
 
     return (
-        <div style={{ padding: "2rem", fontFamily: "Arial" }}>
-            <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>
+        <div style={{padding: "2rem", fontFamily: "Arial"}}>
+            <h1 style={{fontSize: "2rem", marginBottom: "1rem"}}>
                 Vocabulaire du jour
             </h1>
             {loading ? (
@@ -122,10 +136,10 @@ function DailyVocab() {
                         fontWeight: "bold"
                     }}
                 >
-                    Aucun mot n’a pu être trouvé aujourd’hui.
+                    Aucun mot n’a pu être trouvé.
                 </div>
             ) : (
-                words.map(({ word, translation, definition }, index) => (
+                words.map(({word, translation, definition}, index) => (
                     <div
                         key={index}
                         style={{
@@ -166,6 +180,26 @@ function DailyVocab() {
             <button onClick={fetchWordData} style={{marginTop: "1rem"}}>
                 🔁 Rafraîchir
             </button>
+
+            <div style={{marginBottom: "1rem"}}>
+                <label style={{fontWeight: "bold"}}>🧠 Modèle :</label>
+                <select value={model} onChange={handleModelChange} style={{marginLeft: "1rem"}}>
+                    <option value="mistralai/mistral-7b-instruct">Mistral 7B</option>
+                    <option value="openai/gpt-3.5-turbo">GPT-3.5</option>
+                    <option value="openai/gpt-4">GPT-4</option>
+                </select>
+            </div>
+
+            <div style={{marginBottom: "1rem"}}>
+                <label style={{fontWeight: "bold", display: "block"}}>📋 Contexte personnalisé :</label>
+                <textarea
+                    rows="4"
+                    style={{width: "100%", padding: "0.5rem"}}
+                    value={contextPrompt}
+                    onChange={handleContextChange}
+                />
+            </div>
+
 
             {/* Le conteneur à afficher pour les toasts */}
             <ToastContainer position="top-center"/>
