@@ -56,8 +56,12 @@ function DailyVocab() {
         ];
 
         for (const parser of parsers) {
-            const results = lines.map(parser).filter(Boolean);
-            if (results.length >= 3) return results; // on valide si au moins 3 mots trouvés
+            const results = lines.map(parser).filter(Boolean).filter(({ word, translation, definition }) =>
+                /[a-zA-Z]/.test(word) &&
+                /[a-zA-Z]/.test(translation) &&
+                /[a-zA-Z]/.test(definition)
+            );
+            if (results.length >= 3) return results;
         }
 
         return [];
