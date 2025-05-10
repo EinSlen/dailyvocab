@@ -88,6 +88,7 @@ function DailyVocab() {
 
             for (const parser of parsers) {
                 const results = lines
+                    .filter(line => !line.includes("Mot anglais"))
                     .map(parser)
                     .filter(Boolean)
                     .filter(({ word, translation, definition }) =>
