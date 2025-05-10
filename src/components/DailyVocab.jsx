@@ -5,13 +5,23 @@ import 'react-toastify/dist/ReactToastify.css';
 function DailyVocab() {
     const [words, setWords] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [model, setModel] = useState("mistralai/mistral-7b-instruct");
-    const [contextPrompt, setContextPrompt] = useState(
+    const [model, setModel] = useState(() => localStorage.getItem("model") || "mistralai/mistral-7b-instruct");
+    const [contextPrompt, setContextPrompt] = useState(() =>
+        localStorage.getItem("contextPrompt") ||
         "Donne-moi exactement 5 mots anglais utiles du quotidien dans ce format :\n\nMot anglais → traduction française : définition simple.\nPas de numérotation, juste 5 lignes au bon format."
     );
 
-    const handleModelChange = (e) => setModel(e.target.value);
-    const handleContextChange = (e) => setContextPrompt(e.target.value);
+    const handleModelChange = (e) => {
+        const selectedModel = e.target.value;
+        setModel(selectedModel);
+        localStorage.setItem("model", selectedModel);
+    };
+
+    const handleContextChange = (e) => {
+        const newPrompt = e.target.value;
+        setContextPrompt(newPrompt);
+        localStorage.setItem("contextPrompt", newPrompt);
+    };
 
 
     const parseLines = (lines) => {
