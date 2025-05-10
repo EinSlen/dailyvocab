@@ -63,6 +63,12 @@ function DailyVocab() {
         return [];
     };
 
+    const speak = (text) => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "en-US";
+        speechSynthesis.speak(utterance);
+    };
+
     const fetchWordData = async () => {
         setLoading(true);
         try {
@@ -127,18 +133,38 @@ function DailyVocab() {
                             color: "#000",
                         }}
                     >
-                        <strong>{word}</strong> → {translation}
-                        <br />
-                        <em>{definition}</em>
+                        <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+                            <div>
+                                <strong>{word}</strong> → {translation}
+                                <br/>
+                                <em>{definition}</em>
+                            </div>
+                            <button
+                                onClick={() => speak(word)}
+                                style={{
+                                    marginLeft: "1rem",
+                                    padding: "0.5rem",
+                                    borderRadius: "50%",
+                                    border: "none",
+                                    backgroundColor: "#3498db",
+                                    color: "#fff",
+                                    cursor: "pointer",
+                                    fontSize: "1rem"
+                                }}
+                                title="Écouter le mot"
+                            >
+                                🔊
+                            </button>
+                        </div>
                     </div>
                 ))
             )}
-            <button onClick={fetchWordData} style={{ marginTop: "1rem" }}>
+            <button onClick={fetchWordData} style={{marginTop: "1rem"}}>
                 🔁 Rafraîchir
             </button>
 
             {/* Le conteneur à afficher pour les toasts */}
-            <ToastContainer position="top-center" />
+            <ToastContainer position="top-center"/>
         </div>
     );
 }
