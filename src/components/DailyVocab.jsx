@@ -163,16 +163,26 @@ function DailyVocab() {
                             color: "#000",
                         }}
                     >
-                        <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-                            <div>
-                                <strong>{word}</strong> → {translation}
-                                <br/>
-                                <em>{definition}</em>
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                height: "100%",
+                                gap: "1rem"
+                            }}
+                        >
+                            <div style={{flex: 1, display: "flex", flexDirection: "column", justifyContent: "center"}}>
+                                <div style={{textAlign: "center"}}>
+                                    <strong>{word}</strong> → {translation}
+                                </div>
+                                <div style={{textAlign: "center", marginTop: "0.5rem"}}>
+                                    <em>{definition}</em>
+                                </div>
                             </div>
                             <button
                                 onClick={() => speak(word)}
                                 style={{
-                                    marginLeft: "1rem",
                                     padding: "0.5rem",
                                     borderRadius: "50%",
                                     border: "none",
