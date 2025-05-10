@@ -22,75 +22,7 @@ function DailyVocab() {
         localStorage.setItem("contextPrompt", newPrompt);
     };
 
-
-    const parseLines = (lines) => {
-        const parsers = [
-            // Format : 1. Word → Translation : Definition
-            line => {
-                const match = line.match(/^\d+\.\s*(.+?)\s*→\s*(.+?)\s*:\s*(.+)$/);
-                return match && {
-                    word: match[1].trim(),
-                    translation: match[2].trim(),
-                    definition: match[3].trim(),
-                };
-            },
-            // Format : Word (Translation) : Definition
-            line => {
-                const match = line.match(/^(.+?)\s*\((.+?)\)\s*:\s*(.+)$/);
-                return match && {
-                    word: match[1].trim(),
-                    translation: match[2].trim(),
-                    definition: match[3].trim(),
-                };
-            },
-            // Format : Word → Translation - Definition
-            line => {
-                const match = line.match(/^(.+?)\s*→\s*(.+?)\s*-\s*(.+)$/);
-                return match && {
-                    word: match[1].trim(),
-                    translation: match[2].trim(),
-                    definition: match[3].trim(),
-                };
-            },
-            // Format : Word : Translation - Definition
-            line => {
-                const match = line.match(/^(.+?)\s*:\s*(.+?)\s*-\s*(.+)$/);
-                return match && {
-                    word: match[1].trim(),
-                    translation: match[2].trim(),
-                    definition: match[3].trim(),
-                };
-            },
-            // Format : table-like | Word | Translation | Definition
-            line => {
-                const match = line.match(/^(.+?)\s*\|\s*(.+?)\s*\|\s*(.+)$/);
-                return match && {
-                    word: match[1].trim(),
-                    translation: match[2].trim(),
-                    definition: match[3].trim(),
-                };
-            }
-        ];
-
-        for (const parser of parsers) {
-            const results = lines.map(parser).filter(Boolean).filter(({ word, translation, definition }) =>
-                /[a-zA-Z]/.test(word) &&
-                /[a-zA-Z]/.test(translation) &&
-                /[a-zA-Z]/.test(definition)
-            );
-            if (results.length >= 3) return results;
-        }
-
-        return [];
-    };
-
-    const speak = (text) => {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = "en-US";
-        speechSynthesis.speak(utterance);
-    };
-
-    const fetchWordData = async () => {
+    const fetchWordData = async (attempt = 1) => {
         setLoading(true);
         try {
             const res = await fetch("/.netlify/functions/getVocab", {
@@ -107,15 +39,79 @@ function DailyVocab() {
 
             const text = data.content;
             const lines = text.split("\n").filter((l) => l.trim().length > 0);
-            console.log("🧪 Lignes analysées :", lines);
+            console.log(`🧪 Tentative ${attempt} — lignes analysées :`, lines);
 
-            const parsed = parseLines(lines);
+            const parsers = [
+                line => {
+                    const match = line.match(/^\d+\.\s*(.+?)\s*→\s*(.+?)\s*:\s*(.+)$/);
+                    return match && {
+                        word: match[1].trim(),
+                        translation: match[2].trim(),
+                        definition: match[3].trim(),
+                    };
+                },
+                line => {
+                    const match = line.match(/^(.+?)\s*\((.+?)\)\s*:\s*(.+)$/);
+                    return match && {
+                        word: match[1].trim(),
+                        translation: match[2].trim(),
+                        definition: match[3].trim(),
+                    };
+                },
+                line => {
+                    const match = line.match(/^(.+?)\s*→\s*(.+?)\s*-\s*(.+)$/);
+                    return match && {
+                        word: match[1].trim(),
+                        translation: match[2].trim(),
+                        definition: match[3].trim(),
+                    };
+                },
+                line => {
+                    const match = line.match(/^(.+?)\s*:\s*(.+?)\s*-\s*(.+)$/);
+                    return match && {
+                        word: match[1].trim(),
+                        translation: match[2].trim(),
+                        definition: match[3].trim(),
+                    };
+                },
+                line => {
+                    const match = line.match(/^(.+?)\s*\|\s*(.+?)\s*\|\s*(.+)$/);
+                    return match && {
+                        word: match[1].trim(),
+                        translation: match[2].trim(),
+                        definition: match[3].trim(),
+                    };
+                }
+            ];
 
-            if (parsed.length === 0) {
-                toast.error("Aucun mot n’a pu être extrait du texte.");
+            let parsed = [];
+
+            for (const parser of parsers) {
+                const results = lines
+                    .map(parser)
+                    .filter(Boolean)
+                    .filter(({ word, translation, definition }) =>
+                        /[a-zA-Z]/.test(word) &&
+                        /[a-zA-Z]/.test(translation) &&
+                        /[a-zA-Z]/.test(definition)
+                    );
+                if (results.length >= 3) {
+                    parsed = results;
+                    break;
+                }
             }
 
-            setWords(parsed);
+            if (parsed.length === 0) {
+                if (attempt < 5) {
+                    console.warn(`❌ Aucun mot trouvé. Nouvelle tentative (${attempt + 1}/5)...`);
+                    return await fetchWordData(attempt + 1);
+                } else {
+                    toast.error("Aucun mot n’a pu être extrait après 5 tentatives.");
+                    setWords([]);
+                }
+            } else {
+                setWords(parsed);
+            }
         } catch (err) {
             console.error("Erreur lors de la récupération des mots :", err);
             toast.error("Erreur lors de la récupération du vocabulaire.");
@@ -123,6 +119,12 @@ function DailyVocab() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const speak = (text) => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "en-US";
+        speechSynthesis.speak(utterance);
     };
 
     useEffect(() => {
@@ -199,7 +201,7 @@ function DailyVocab() {
                     </div>
                 ))
             )}
-            <button onClick={fetchWordData} style={{marginTop: "1rem"}}>
+            <button onClick={() => fetchWordData(1)} style={{marginTop: "1rem"}}>
                 🔁 Rafraîchir
             </button>
 
