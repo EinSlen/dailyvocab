@@ -6,10 +6,9 @@ function DailyVocab() {
     const [words, setWords] = useState([]);
     const [loading, setLoading] = useState(true);
     const [model, setModel] = useState(() => localStorage.getItem("model") || "mistralai/mistral-7b-instruct");
-    const [contextPrompt, setContextPrompt] = useState(() =>
-        localStorage.getItem("contextPrompt") ||
-        "Donne-moi exactement 5 mots anglais utiles du quotidien dans ce format :\n\nMot anglais → traduction française : définition simple.\nPas de numérotation, juste 5 lignes au bon format."
-    );
+    const BASE_PROMPT =
+        "Donne-moi exactement 5 mots anglais utiles du quotidien dans ce format :\n\nMot anglais → traduction française : définition simple.\nPas de numérotation, juste 5 lignes au bon format.";
+    const [contextPrompt, setContextPrompt] = useState(() => localStorage.getItem("contextPrompt") || "");
 
     const handleModelChange = (e) => {
         const selectedModel = e.target.value;
@@ -99,7 +98,10 @@ function DailyVocab() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ model, prompt: contextPrompt }),
+                body: JSON.stringify({
+                    model,
+                    prompt: `${BASE_PROMPT}${contextPrompt ? "\n\n" + contextPrompt : ""}`,
+                }),
             });
             const data = await res.json();
 
@@ -205,6 +207,7 @@ function DailyVocab() {
                 <textarea
                     rows="4"
                     style={{width: "100%", padding: "0.5rem"}}
+                    placeholder="Exemple : Donne des mots liés à la cuisine ou au voyage."
                     value={contextPrompt}
                     onChange={handleContextChange}
                 />

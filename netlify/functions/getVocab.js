@@ -13,6 +13,8 @@ exports.handler = async function (event, context) {
 
         const { model, prompt } = JSON.parse(event.body || "{}");
 
+        console.log("Le PROMPT: ", prompt);
+
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
